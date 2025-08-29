@@ -2,7 +2,9 @@ import streamlit as st
 import os
 import tempfile
 import google_auth_oauthlib.flow
+from google_auth_oauthlib.flow import InstalledAppFlow
 from google.oauth2.credentials import Credentials
+from googleapiclient.discovery import build
 
 # Scopes you need
 SCOPES = [
@@ -23,11 +25,13 @@ if uploaded_file:
 
     if st.button("Run OAuth Flow"):
         try:
-            # Run OAuth in local browser
-            flow = google_auth_oauthlib.flow.InstalledAppFlow.from_client_secrets_file(
+            # Run OAuth in a browser (in a new tab)
+            flow = InstalledAppFlow.from_client_secrets_file(
                 creds_path, SCOPES
             )
-            creds = flow.run_local_server(port=0)
+            # Make sure you use the redirect URI for non-local setups
+            flow.redirect_uri = 'https://localhost:8080'  # You can set a custom redirect URI if required
+            creds = flow.run_console()  # Use `run_console()` instead of `run_local_server()`
 
             # Save token.json
             token_path = "token.json"
